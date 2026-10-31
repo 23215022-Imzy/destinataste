@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-// Data Kategori Cepat sesuai layout Mockup Figma
+// 1. Data Kategori Cepat
 const INITIAL_CATEGORIES = [
   { id: 'alam', name: 'Wisata Alam', icon: '🌲', sub: 'Guci & Curug', type: 'Wisata' },
   { id: 'kuliner', name: 'Kuliner Tradisional', icon: '🍲', sub: 'Sate & Glabed', type: 'Kuliner' },
@@ -10,17 +10,19 @@ const INITIAL_CATEGORIES = [
   { id: 'oleholeh', name: 'Oleh-Oleh Khas', icon: '🫖', sub: 'Tahu & Poci', type: 'Kuliner' },
 ];
 
-const INITIAL_HIGHLIGHTS = [
+// 2. Seluruh Database Destinasi (Ditandai mana yang unggulan / isFeatured)
+const ALL_DESTINATIONS = [
   {
     id: 1,
     title: 'Kawah / Pemandian Guci',
     type: 'Wisata',
     category: 'Wisata Alam',
     rating: '5.0',
-    location: 'Tegal',
+    location: 'Bumijawa, Kab. Tegal',
     price: 'Rp 20.000',
     image: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=600&q=80',
     description: 'Pemandian mata air panas alami dengan udara sejuk pegunungan.',
+    isFeatured: true, // UNGGULAN
   },
   {
     id: 2,
@@ -28,10 +30,11 @@ const INITIAL_HIGHLIGHTS = [
     type: 'Wisata',
     category: 'Wisata Bahari',
     rating: '4.8',
-    location: 'Tegal',
+    location: 'Kota Tegal',
     price: 'Rp 10.000',
     image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
     description: 'Pantai pesisir utara dengan pemandangan ombak dan senja.',
+    isFeatured: true, // UNGGULAN
   },
   {
     id: 3,
@@ -39,10 +42,11 @@ const INITIAL_HIGHLIGHTS = [
     type: 'Kuliner',
     category: 'Kuliner Tradisional',
     rating: '5.0',
-    location: 'Tegal',
+    location: 'Talang & Adiwerna',
     price: 'Rp 45.000',
     image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=600&q=80',
     description: 'Daging empuk bawah tiga bulan disajikan segar di atas hotplate.',
+    isFeatured: true, // UNGGULAN
   },
   {
     id: 4,
@@ -50,10 +54,11 @@ const INITIAL_HIGHLIGHTS = [
     type: 'Kuliner',
     category: 'Oleh-Oleh',
     rating: '4.9',
-    location: 'Tegal',
+    location: 'Slawi, Kab. Tegal',
     price: 'Rp 15.000',
     image: 'https://images.unsplash.com/photo-1541518763669-27fef04b14ea?auto=format&fit=crop&w=600&q=80',
     description: 'Tahu kuning khas potongan segitiga dengan aci gurih renyah.',
+    isFeatured: true, // UNGGULAN
   },
   {
     id: 5,
@@ -61,10 +66,47 @@ const INITIAL_HIGHLIGHTS = [
     type: 'Kuliner',
     category: 'Kuliner Tradisional',
     rating: '4.7',
-    location: 'Tegal',
+    location: 'Kota Tegal',
     price: 'Rp 15.000',
     image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
     description: 'Kupat berkuah kental kuning gurih dengan taburan kerupuk mi.',
+    isFeatured: true, // UNGGULAN
+  },
+  {
+    id: 6,
+    title: 'Waduk Cacaban',
+    type: 'Wisata',
+    category: 'Wisata Alam',
+    rating: '4.5',
+    location: 'Kedungbanteng, Kab. Tegal',
+    price: 'Rp 10.000',
+    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80',
+    description: 'Pemandangan danau buatan dengan latar bukit hijau dan perahu wisata.',
+    isFeatured: false, // BUKAN UNGGULAN (Muncul saat dicari)
+  },
+  {
+    id: 7,
+    title: 'Teh Poci Tradisional Wasgitel',
+    type: 'Kuliner',
+    category: 'Kuliner Tradisional',
+    rating: '4.9',
+    location: 'Slawi & Tegal Kota',
+    price: 'Rp 8.000',
+    image: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=600&q=80',
+    description: 'Seduhan teh poci tanah liat dengan pemanis gula batu asli khas Tegal.',
+    isFeatured: false,
+  },
+  {
+    id: 8,
+    title: 'Curug Cantel Bumijawa',
+    type: 'Wisata',
+    category: 'Wisata Alam',
+    rating: '4.7',
+    location: 'Bumijawa, Kab. Tegal',
+    price: 'Rp 10.000',
+    image: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=600&q=80',
+    description: 'Air terjun alami tersembunyi dengan ketinggian sekitar 60 meter berhawa dingin.',
+    isFeatured: false,
   },
 ];
 
@@ -72,17 +114,24 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('Semua');
 
-  const filteredHighlights = INITIAL_HIGHLIGHTS.filter((item) => {
+  // LOGIKA PENCARIAN CERDAS:
+  // - Jika search kosong: hanya tampilkan item dengan isFeatured: true
+  // - Jika sedang mengetik search: cari ke SEMUA destinasi tanpa membatasi isFeatured
+  const filteredHighlights = ALL_DESTINATIONS.filter((item) => {
+    const isSearching = searchQuery.trim().length > 0;
+    const matchesFeatured = isSearching ? true : item.isFeatured;
     const matchesFilter = selectedFilter === 'Semua' || item.type === selectedFilter;
     const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.location.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesFilter && matchesSearch;
+                          item.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.category.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesFeatured && matchesFilter && matchesSearch;
   });
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-800 font-sans flex flex-col justify-between">
       
-      {/* 1. NAVBAR (SUDAH DIUBAH PAKAI <Link>) */}
+      {/* 1. NAVBAR */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -100,6 +149,7 @@ export default function Home() {
           </nav>
 
           <div className="flex items-center gap-3">
+            {/* Input Pencarian Navbar */}
             <div className="relative hidden lg:block">
               <input
                 type="text"
@@ -118,7 +168,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* 2. HERO SECTION (TOMBOL SUDAH DIUBAH PAKAI <Link>) */}
+      {/* 2. HERO SECTION */}
       <section id="hero" className="w-full px-4 sm:px-6 lg:px-8 pt-4 pb-6 max-w-7xl mx-auto">
         <div className="relative w-full rounded-3xl overflow-hidden min-h-[440px] md:min-h-[480px] flex items-center shadow-sm">
           <img
@@ -137,7 +187,6 @@ export default function Home() {
               Temukan destinasi wisata alam memukau dan kelezatan kuliner legendaris dalam satu genggaman.
             </p>
             
-            {/* DUA TOMBOL HERO MENUJU HALAMAN KATALOG */}
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <Link
                 to="/katalog?type=Wisata"
@@ -160,13 +209,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. BAGIAN KATEGORI CEPAT */}
+      {/* 3. KATEGORI CEPAT */}
       <section id="kategori" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
         <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">Bagian Kategori Cepat</h2>
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
           
-          {/* Kolom Kiri: Ikon Kategori Bulat */}
           <div className="lg:col-span-7 grid grid-cols-3 sm:grid-cols-5 gap-3">
             {INITIAL_CATEGORIES.map((cat) => (
               <Link
@@ -182,7 +230,6 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Kolom Kanan: 2 Promo Banner Mini (Oleh-Oleh & Tahu Aci) */}
           <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Link to="/katalog?type=Kuliner" className="bg-emerald-50/70 border border-emerald-100 hover:border-emerald-400 rounded-2xl p-4 flex items-center justify-between transition">
               <div>
@@ -204,12 +251,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. REKOMENDASI TERPOPULER DENGAN CARD PERSIS MOCKUP */}
+      {/* 4. REKOMENDASI TERPOPULER (DENGAN HASIL PENCARIAN REAL-TIME) */}
       <section id="rekomendasi" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
           <div>
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900">Bagian Rekomendasi Terpopuler</h2>
-            <p className="text-xs text-slate-500">Wisata Populer &amp; Kuliner Legendaris</p>
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900">
+              {searchQuery ? `Hasil Pencarian: "${searchQuery}"` : 'Bagian Rekomendasi Terpopuler'}
+            </h2>
+            <p className="text-xs text-slate-500">
+              {searchQuery ? `Ditemukan ${filteredHighlights.length} destinasi` : 'Wisata Populer & Kuliner Legendaris'}
+            </p>
           </div>
 
           <div className="flex bg-slate-200/70 p-1 rounded-xl text-xs font-semibold">
@@ -229,39 +280,51 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          {filteredHighlights.map((item) => (
-            <Link
-              to={`/detail/${item.id}`}
-              key={item.id}
-              className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col cursor-pointer block"
-            >
-              <div className="h-32 sm:h-36 w-full overflow-hidden bg-slate-100">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-full object-cover hover:scale-105 transition duration-300"
-                />
-              </div>
+        {/* Jika Hasil Pencarian Kosong */}
+        {filteredHighlights.length === 0 ? (
+          <div className="bg-white rounded-2xl p-8 text-center border border-dashed border-slate-200">
+            <p className="text-slate-500 text-xs sm:text-sm">
+              Tidak ditemukan tempat dengan kata kunci "{searchQuery}".
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {filteredHighlights.map((item) => (
+              <Link
+                to={`/detail/${item.id}`}
+                key={item.id}
+                className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col cursor-pointer block group"
+              >
+                <div className="h-32 sm:h-36 w-full overflow-hidden bg-slate-100">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  />
+                </div>
 
-              <div className="p-3 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="font-bold text-slate-800 text-xs sm:text-sm line-clamp-1">{item.title}</h3>
-                  <div className="flex items-center gap-1 text-[11px] text-amber-500 mt-1">
-                    <span>★★★★★</span>
+                <div className="p-3 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-bold text-slate-800 text-xs sm:text-sm line-clamp-1 group-hover:text-emerald-700 transition">
+                      {item.title}
+                    </h3>
+                    <div className="flex items-center gap-1 text-[11px] text-amber-500 mt-1">
+                      <span>★★★★★</span>
+                      <span className="text-[10px] text-slate-400">({item.rating})</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                    <span className="text-slate-400 truncate max-w-[80px]">📍 {item.location}</span>
+                    <span className="bg-amber-500 text-white font-semibold px-2 py-0.5 rounded-full text-[10px]">
+                      {item.type}
+                    </span>
                   </div>
                 </div>
-
-                <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                  <span className="text-slate-400">📍 {item.location}</span>
-                  <span className="bg-amber-500 text-white font-semibold px-2 py-0.5 rounded-full text-[10px]">
-                    {item.type}
-                  </span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* 5. FOOTER */}
