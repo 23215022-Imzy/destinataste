@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 // Data Kategori Cepat sesuai layout Mockup Figma
 const INITIAL_CATEGORIES = [
-  { id: 'alam', name: 'Wisata Alam', icon: '🌲', sub: 'Guci & Curug' },
-  { id: 'kuliner', name: 'Kuliner Tradisional', icon: '🍲', sub: 'Sate & Glabed' },
-  { id: 'sejarah', name: 'Wisata Sejarah', icon: '🏛️', sub: 'Situs & Monumen' },
-  { id: 'cafe', name: 'Cafe & Resto', icon: '☕', sub: 'Tempat Santai' },
-  { id: 'oleholeh', name: 'Oleh-Oleh Khas', icon: '🫖', sub: 'Tahu & Poci' },
+  { id: 'alam', name: 'Wisata Alam', icon: '🌲', sub: 'Guci & Curug', type: 'Wisata' },
+  { id: 'kuliner', name: 'Kuliner Tradisional', icon: '🍲', sub: 'Sate & Glabed', type: 'Kuliner' },
+  { id: 'sejarah', name: 'Wisata Sejarah', icon: '🏛️', sub: 'Situs & Monumen', type: 'Wisata' },
+  { id: 'cafe', name: 'Cafe & Resto', icon: '☕', sub: 'Tempat Santai', type: 'Kuliner' },
+  { id: 'oleholeh', name: 'Oleh-Oleh Khas', icon: '🫖', sub: 'Tahu & Poci', type: 'Kuliner' },
 ];
 
 const INITIAL_HIGHLIGHTS = [
@@ -81,21 +82,21 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-800 font-sans flex flex-col justify-between">
       
-      {/* 1. NAVBAR */}
+      {/* 1. NAVBAR (SUDAH DIUBAH PAKAI <Link>) */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-2xl font-black text-emerald-700 tracking-tight">
+            <Link to="/" className="text-2xl font-black text-emerald-700 tracking-tight">
               Destina<span className="text-amber-500">Taste</span>
-            </span>
+            </Link>
           </div>
 
           <nav className="hidden md:flex items-center gap-8 font-medium text-sm text-slate-600">
-            <a href="#hero" className="text-emerald-700 font-bold border-b-2 border-emerald-700 pb-1">Beranda</a>
-            <a href="#wisata" className="hover:text-emerald-700 transition">Wisata</a>
-            <a href="#kuliner" className="hover:text-emerald-700 transition">Kuliner</a>
-            <a href="#tentang" className="hover:text-emerald-700 transition">Tentang Kami</a>
-            <a href="#artikel" className="hover:text-emerald-700 transition">Artikel</a>
+            <Link to="/" className="text-emerald-700 font-bold border-b-2 border-emerald-700 pb-1">Beranda</Link>
+            <Link to="/katalog?type=Wisata" className="hover:text-emerald-700 transition">Wisata</Link>
+            <Link to="/katalog?type=Kuliner" className="hover:text-emerald-700 transition">Kuliner</Link>
+            <a href="#rekomendasi" className="hover:text-emerald-700 transition">Rekomendasi</a>
+            <Link to="/katalog" className="hover:text-emerald-700 transition">Katalog Lengkap</Link>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -117,7 +118,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* 2. HERO SECTION SESUAI MOCKUP FIGMA */}
+      {/* 2. HERO SECTION (TOMBOL SUDAH DIUBAH PAKAI <Link>) */}
       <section id="hero" className="w-full px-4 sm:px-6 lg:px-8 pt-4 pb-6 max-w-7xl mx-auto">
         <div className="relative w-full rounded-3xl overflow-hidden min-h-[440px] md:min-h-[480px] flex items-center shadow-sm">
           <img
@@ -135,20 +136,21 @@ export default function Home() {
             <p className="mt-4 text-xs sm:text-sm text-slate-100/90 leading-relaxed max-w-md font-sans">
               Temukan destinasi wisata alam memukau dan kelezatan kuliner legendaris dalam satu genggaman.
             </p>
+            
+            {/* DUA TOMBOL HERO MENUJU HALAMAN KATALOG */}
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <a
-                href="#rekomendasi"
+              <Link
+                to="/katalog?type=Wisata"
                 className="bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-full shadow-xs transition-all"
               >
                 Mulai Jelajahi
-              </a>
-              <a
-                href="#rekomendasi"
-                onClick={() => setSelectedFilter('Kuliner')}
+              </Link>
+              <Link
+                to="/katalog?type=Kuliner"
                 className="bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-full shadow-xs transition-all"
               >
                 Cari Kuliner
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -158,7 +160,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. BAGIAN KATEGORI CEPAT SESUAI MOCKUP */}
+      {/* 3. BAGIAN KATEGORI CEPAT */}
       <section id="kategori" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
         <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">Bagian Kategori Cepat</h2>
         
@@ -167,35 +169,36 @@ export default function Home() {
           {/* Kolom Kiri: Ikon Kategori Bulat */}
           <div className="lg:col-span-7 grid grid-cols-3 sm:grid-cols-5 gap-3">
             {INITIAL_CATEGORIES.map((cat) => (
-              <div
+              <Link
                 key={cat.id}
+                to={`/katalog?type=${cat.type}`}
                 className="bg-white p-3 sm:p-4 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center text-center hover:border-emerald-500 transition-all cursor-pointer"
               >
                 <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-2xl mb-2">
                   {cat.icon}
                 </div>
                 <span className="font-bold text-xs text-slate-800 leading-tight">{cat.name}</span>
-              </div>
+              </Link>
             ))}
           </div>
 
           {/* Kolom Kanan: 2 Promo Banner Mini (Oleh-Oleh & Tahu Aci) */}
           <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="bg-emerald-50/70 border border-emerald-100 rounded-2xl p-4 flex items-center justify-between">
+            <Link to="/katalog?type=Kuliner" className="bg-emerald-50/70 border border-emerald-100 hover:border-emerald-400 rounded-2xl p-4 flex items-center justify-between transition">
               <div>
                 <span className="font-bold text-xs sm:text-sm text-emerald-950 block">Oleh-Oleh</span>
                 <span className="font-semibold text-xs text-emerald-800">khas Tegal</span>
               </div>
               <div className="text-3xl">🫖</div>
-            </div>
+            </Link>
 
-            <div className="bg-emerald-50/70 border border-emerald-100 rounded-2xl p-4 flex items-center justify-between">
+            <Link to="/detail/4" className="bg-emerald-50/70 border border-emerald-100 hover:border-emerald-400 rounded-2xl p-4 flex items-center justify-between transition">
               <div>
                 <span className="font-bold text-xs sm:text-sm text-emerald-950 block">Tahu aci</span>
                 <span className="font-semibold text-xs text-emerald-800">khas Tegal</span>
               </div>
               <div className="text-3xl">🥟</div>
-            </div>
+            </Link>
           </div>
 
         </div>
@@ -228,9 +231,10 @@ export default function Home() {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {filteredHighlights.map((item) => (
-            <div
+            <Link
+              to={`/detail/${item.id}`}
               key={item.id}
-              className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col"
+              className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col cursor-pointer block"
             >
               <div className="h-32 sm:h-36 w-full overflow-hidden bg-slate-100">
                 <img
@@ -255,7 +259,7 @@ export default function Home() {
                   </span>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
